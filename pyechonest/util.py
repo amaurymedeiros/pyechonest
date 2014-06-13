@@ -49,7 +49,7 @@ class MyBaseHandler(urllib2.BaseHandler):
             logger.info("%s" % (request.get_full_url(),))
         request.start_time = time.time()
         return None
-        
+
 class MyErrorProcessor(urllib2.HTTPErrorProcessor):
     def http_response(self, request, response):
         code = response.code
@@ -159,12 +159,12 @@ def codegen(filename, start=0, duration=30):
     if not os.path.exists(cmd):
         raise Exception("Codegen binary not found.")
 
-    command = cmd + " \"" + filename + "\" " 
+    command = cmd + " \"" + filename + "\" "
     if start >= 0:
         command = command + str(start) + " "
     if duration >= 0:
         command = command + str(duration)
-        
+
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (json_block, errs) = p.communicate()
     json_block = reallyUTF8(json_block)
@@ -178,10 +178,10 @@ def codegen(filename, start=0, duration=30):
 
 def callm(method, param_dict, POST=False, socket_timeout=None, data=None):
     """
-    Call the api! 
+    Call the api!
     Param_dict is a *regular* *python* *dictionary* so if you want to have multi-valued params
     put them in a list.
-    
+
     ** note, if we require 2.6, we can get rid of this timeout munging.
     """
     try:
@@ -267,10 +267,10 @@ def oauthgetm(method, param_dict, socket_timeout=None):
         raise Exception("You must install the python-oauth2 library to use this method.")
 
     """
-    Call the api! With Oauth! 
+    Call the api! With Oauth!
     Param_dict is a *regular* *python* *dictionary* so if you want to have multi-valued params
     put them in a list.
-    
+
     ** note, if we require 2.6, we can get rid of this timeout munging.
     """
     def build_request(url):
@@ -281,17 +281,17 @@ def oauthgetm(method, param_dict, socket_timeout=None):
             }
         consumer = oauth2.Consumer(key=config.ECHO_NEST_CONSUMER_KEY, secret=config.ECHO_NEST_SHARED_SECRET)
         params['oauth_consumer_key'] = config.ECHO_NEST_CONSUMER_KEY
-        
+
         req = oauth2.Request(method='GET', url=url, parameters=params)
         signature_method = oauth2.SignatureMethod_HMAC_SHA1()
         req.sign_request(signature_method, consumer, None)
         return req
-    
+
     param_dict['api_key'] = config.ECHO_NEST_API_KEY
     param_list = []
     if not socket_timeout:
         socket_timeout = config.CALL_TIMEOUT
-    
+
     for key,val in param_dict.iteritems():
         if isinstance(val, list):
             param_list.extend( [(key,subval) for subval in val] )
@@ -301,19 +301,19 @@ def oauthgetm(method, param_dict, socket_timeout=None):
             param_list.append( (key,val) )
 
     params = urllib.urlencode(param_list)
-    
+
     orig_timeout = socket.getdefaulttimeout()
     socket.setdefaulttimeout(socket_timeout)
     """
     just a normal GET call
     """
-    url = 'http://%s/%s/%s/%s?%s' % (config.API_HOST, config.API_SELECTOR, config.API_VERSION, 
+    url = 'http://%s/%s/%s/%s?%s' % (config.API_HOST, config.API_SELECTOR, config.API_VERSION,
                                      method, params)
     req = build_request(url)
     f = opener.open(req.to_url())
-            
+
     socket.setdefaulttimeout(orig_timeout)
-    
+
     # try/except
     response_dict = get_successful_response(f)
     return response_dict
@@ -323,14 +323,14 @@ def postChunked(host, selector, fields, files):
     """
     Attempt to replace postMultipart() with nearly-identical interface.
     (The files tuple no longer requires the filename, and we only return
-    the response body.) 
-    Uses the urllib2_file.py originally from 
-    http://fabien.seisen.org which was also drawn heavily from 
+    the response body.)
+    Uses the urllib2_file.py originally from
+    http://fabien.seisen.org which was also drawn heavily from
     http://code.activestate.com/recipes/146306/ .
-    
-    This urllib2_file.py is more desirable because of the chunked 
-    uploading from a file pointer (no need to read entire file into 
-    memory) and the ability to work from behind a proxy (due to its 
+
+    This urllib2_file.py is more desirable because of the chunked
+    uploading from a file pointer (no need to read entire file into
+    memory) and the ability to work from behind a proxy (due to its
     basis on urllib2).
     """
     params = urllib.urlencode(fields)
@@ -348,6 +348,6 @@ def fix(x):
 
 
 def map_idspace(input_idspace):
-    if input_idspace == 'spotify-WW' or input_idspace == 'spotifyv2-ZZ':
+    if input_idspace in ['spotify-WW', 'spotifyv2-ZZ']:
         return 'spotify'
     return input_idspace

@@ -20,8 +20,8 @@ Created by Tyler Williams on 2010-09-01
 # = try_new_things.py =
 # ========================
 #
-# enter a few of your favorite artists and create a playlist of new music that 
-# you might like. 
+# enter a few of your favorite artists and create a playlist of new music that
+# you might like.
 #
 
 import sys, os, logging
@@ -41,28 +41,28 @@ class XmlWriter(object):
         self._out = outStream
         self._indentAmount = indentAmount
         self._stack = [ ]
-    
+
     def prolog(self, encoding='UTF-8', version='1.0'):
         pi = '<?xml version="%s" encoding="%s"?>' % (version, encoding)
         self._out.write(pi + '\n')
-    
+
     def start(self, name, attrs={ }):
         indent = self._getIndention()
         self._stack.append(name)
         self._out.write(indent + self._makeTag(name, attrs) + '\n')
-    
+
     def end(self):
         name = self._stack.pop()
         indent = self._getIndention()
         self._out.write('%s</%s>\n' % (indent, name))
-    
+
     def elem(self, name, value, attrs={ }):
         # delete attributes with an unset value
         for (k, v) in attrs.items():
-            if v is None or v == '':
+            if not v:
                 del attrs[k]
-        
-        if value is None or value == '':
+
+        if not value:
             if len(attrs) == 0:
                 return
             self._out.write(self._getIndention())
@@ -73,25 +73,25 @@ class XmlWriter(object):
             self._out.write(self._makeTag(name, attrs))
             self._out.write(escValue)
             self._out.write('</%s>\n' % name)
-    
+
     def _getIndention(self):
         return self._indentAmount * len(self._stack)
-    
+
     def _makeTag(self, name, attrs={ }, close=False):
         ret = '<' + name
-    
+
         for (k, v) in attrs.iteritems():
             if v is not None:
                 v = saxutils.quoteattr(str(v))
                 ret += ' %s=%s' % (k, v)
-        
+
         if close:
             return ret + '/>'
         else:
             return ret + '>'
-            
 
-            
+
+
 def write_xspf(f, tuples):
     """send me a list of (artist,title,mp3_url)"""
     xml = XmlWriter(f, indentAmount='  ')
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     'example:\n' \
     '\t ./%prog "arcade fire" "feist" "broken social scene" -x -f arcade_feist_scene.xspf\n' \
     '\t ./%prog "justice" "four tet" "bitshifter" -v\n'
-    
+
     parser = OptionParser(usage=usage)
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         log_level = logging.INFO
     logging.basicConfig(level=log_level)
     logger.setLevel(log_level)
-    
+
     # make sure output file doesn't already exist
     if options.filename and os.path.exists(options.filename):
         logger.error("The file path: %s already exists." % (options.filename,))
@@ -173,7 +173,7 @@ if __name__ == "__main__":
 
     # find playlist
     raw_plist = find_playlist(seed_ids, playable=(options.audio or options.xspf))
-    
+
     tuple_plist = []
     for s in raw_plist:
         name = s.artist_name
